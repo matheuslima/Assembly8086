@@ -1,6 +1,16 @@
 ;Matheus Lima
 ;Escreve nos primeiros 64K de endereço e lê o dado escrito nesses endereços.
 ;O objetivo é detectar falhas na montagem da memória RAM
+
+dados segment at 0000H
+dados ends
+assume ds:dados
+
+codigo segment at 0F000H
+	org 0000H
+	inicio label far ;Aqui eu criei um label far, que pode ser usado no jmp para ir para um segmento e um offset específico
+codigo ends
+assume cs:codigo
 .model small
 .data
 memValue equ 0FFH
@@ -18,8 +28,10 @@ sucess:
 memoryTest proc near
 	;Desempilha o endereço da instrução seguinte à chamada da procedure memoryTest
 	pop dx
+	mov ax, 0
+	mov ds, ax
 	mov cx, 0FFFFH
-	mov si, 0FFFFH
+	mov bx, 0FFFFH
 	mov ax, memValue
 	;Escreve memValue (0FFH) nos primeiros 64K de memória (0FFFFH)
 	write:
@@ -55,5 +67,9 @@ memoryTest proc near
 		push ax
 		jmp exit
 memoryTest endp
+
+	org 0FFF0H
+	nop
+	jmp far ptr inicio
 
 end
